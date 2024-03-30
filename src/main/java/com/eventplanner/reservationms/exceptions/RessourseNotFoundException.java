@@ -1,5 +1,6 @@
 package com.eventplanner.reservationms.exceptions;
 
+import com.eventplanner.reservationms.payload.ErrorResponse;
 
 public class RessourseNotFoundException extends RuntimeException {
     private final transient ErrorResponse error;
