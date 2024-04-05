@@ -7,6 +7,8 @@ public enum ApiError {
     USER_NOT_FOUND(60, "Resource not found", "The USER does not exist."),
 
     EVENT_NOT_FOUND(60, "Resource not found", "The EVENT does not exist."),
+    EVENT_FULL(45, "Resource not available", "Event at capacity, unable to accommodate additional guests."),
+
     HEADER_AUTHORIZATION_ERROR(60, "Invalid credentiels", "The header authorization must contains a valid barer token "),
 
     USER_DELETING_NOT_AUTHORISED(60, "Invalid credentiels", "The user can't be deleted ."),
