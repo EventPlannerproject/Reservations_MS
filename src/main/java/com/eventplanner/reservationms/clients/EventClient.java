@@ -12,5 +12,4 @@ public interface EventClient {
     @GetMapping(value = "/{eventId}")
     Integer  findAvailableCapacity(@PathVariable("eventId") Long eventId);
 
-   //TODO implement post mapping to call event update available capacity
 }
