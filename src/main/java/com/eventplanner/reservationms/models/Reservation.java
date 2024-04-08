@@ -18,6 +18,10 @@ import java.time.LocalDate;
 @Entity
 public class Reservation {
 
+    /**
+     * a reservation is created by a user for a specific date  of an Event
+     * */
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

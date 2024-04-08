@@ -48,13 +48,25 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public Reservation updateReservationDetails(Long idReservation,Reservation reservation) {
-        Reservation reservationToUpdate=reservationRepository.findById(idReservation).orElseThrow(  ()->
+    public Reservation updateReservationDetails(Long idReservation,Reservation requestRes) {
+        Reservation existingRes=reservationRepository.findById(idReservation).orElseThrow(  ()->
                 new BadRequestException(new ErrorResponse(ApiError.RESSOUCE_NOT_FOUND.getErrorCode(),
                         ApiError.RESSOUCE_NOT_FOUND.getMessage(), ApiError.RESSOUCE_NOT_FOUND.getDescription()))
         );
-        reservation.setId(reservationToUpdate.getId());
-        return reservationRepository.save(reservation);
+        if(requestRes.getPaymentInformation()!=null){
+            existingRes.setPaymentInformation(requestRes.getPaymentInformation());
+        }
+        if(requestRes.getGuestsNumbers()!=null){
+            existingRes.setGuestsNumbers(requestRes.getGuestsNumbers());
+        }
+        if(requestRes.getReservationDate()!=null){
+              existingRes.setReservationDate(requestRes.getReservationDate());
+        }
+        if(requestRes.getReservationStatus()!=null){
+            existingRes.setReservationStatus(requestRes.getReservationStatus());
+        }
+        existingRes.setModificationDate(LocalDate.now());
+        return reservationRepository.save(existingRes);
     }
 
     @Override
