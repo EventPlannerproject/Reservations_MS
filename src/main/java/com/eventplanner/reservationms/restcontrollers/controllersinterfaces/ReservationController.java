@@ -5,6 +5,7 @@ import com.eventplanner.reservationms.models.Reservation;
 import com.eventplanner.reservationms.models.Status;
 import jakarta.ws.rs.QueryParam;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,6 +28,7 @@ public interface ReservationController {
     ResponseEntity<?> cancelReservation(@PathVariable("reservationId") Long reservationId);
 
     @GetMapping(value = "/all", produces = "application/json")
+    @PreAuthorize("hasRole('client_admin')")
     List<ReservationDTO> getAllReservations();
 
     @GetMapping(value = "/userHistory", produces = "application/json")
