@@ -2,11 +2,14 @@ package com.eventplanner.reservationms.services.servicesImpl;
 
 import com.eventplanner.reservationms.clients.EventClient;
 import com.eventplanner.reservationms.clients.rabbitmq.ReservationProducer;
+import com.eventplanner.reservationms.clients.responses.EventResponse;
 import com.eventplanner.reservationms.exceptions.BadRequestException;
 import com.eventplanner.reservationms.models.Reservation;
 import com.eventplanner.reservationms.models.Status;
 import com.eventplanner.reservationms.payload.ApiError;
 import com.eventplanner.reservationms.payload.ErrorResponse;
+import com.eventplanner.reservationms.payload.emailsenderconfig.EmailService;
+import com.eventplanner.reservationms.payload.emailsenderconfig.EmailsDetails;
 import com.eventplanner.reservationms.repositories.ReservationRepository;
 import com.eventplanner.reservationms.services.ReservationService;
 import lombok.AllArgsConstructor;
@@ -23,18 +26,43 @@ public class ReservationServiceImpl implements ReservationService {
     private final EventClient eventClient;
     private final ReservationProducer reservationProducer;
 
+    private EmailService emailService;
+
+
+    /** createReservationMethod
+     *  contains call eventMS through feign client to get available Capacity of an event
+     *  And a sending message for event MS to inform about new reservation saved and transfer
+     *  numbers of guests so eventMS can update numbersOfAvailable Guests of the event
+     */
     @Override
     public Reservation createReservation(Reservation reservation) {
-        var availableCapacity = eventClient.findAvailableCapacity(reservation.getIdEvent());
-        if(availableCapacity<=0){
+
+        //var availableCapacity = eventClient.findAvailableCapacity(reservation.getIdEvent());
+        EventResponse eventResponse = eventClient.retrieveEvent(reservation.getIdEvent()).get();
+        if(eventResponse==null){
+            //throw exception
+            ErrorResponse errorResponse = new ErrorResponse(ApiError.EVENT_NOT_FOUND.getErrorCode(),ApiError.EVENT_NOT_FOUND.getMessage(), ApiError.EVENT_NOT_FOUND.getDescription());
+            throw  new BadRequestException(errorResponse);
+        }
+        Integer availableCapacity = eventResponse.getNumberOfAttendees()-eventResponse.getNumbersOfParticipants();
+        if(availableCapacity<=0 || availableCapacity==null){
             ErrorResponse errorResponse = new ErrorResponse(ApiError.EVENT_FULL.getErrorCode(),ApiError.EVENT_FULL.getMessage(), ApiError.EVENT_FULL.getDescription());
             throw  new BadRequestException(errorResponse);
         }
-        //TODO after save update capacity available call the api event
         reservation.setCreationDate(LocalDate.now());
         Reservation reservationSaved= reservationRepository.save(reservation);
         reservationProducer.sendMessage(reservation.getGuestsNumbers(),reservation.getIdEvent());
-        //TODO call event update available capacity after reservation
+        //Send email for user to inform that
+        if(reservation.getEmailUserNotif()!=null){
+            emailService.sendEmail(EmailsDetails.builder()
+                    .messageBody("We are thrilled to inform you that your reservation for the upcoming event has been successfully processed!" +
+                            "* Reservation Date :  "+reservation.getReservationDate()+"/n"+
+                            "Event : "+eventResponse.getTitle()+"/n"+
+                            "See you Soon ")
+                    .recipient(reservation.getEmailUserNotif())
+                    .subject("Reservation for "+eventResponse.getTitle())
+                    .build());
+        }
         return  reservationSaved;
     }
 

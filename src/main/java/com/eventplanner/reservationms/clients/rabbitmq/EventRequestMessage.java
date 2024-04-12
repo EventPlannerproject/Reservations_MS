@@ -6,6 +6,6 @@ import lombok.*;
 @Builder
 @Data
 public class EventRequestMessage {
-  private  Long eventId;
+  private  Integer eventId;
   private  Integer guestNumbers;
 }

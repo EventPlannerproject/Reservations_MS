@@ -9,7 +9,7 @@ public class ReservationProducer {
 
     private final RabbitTemplate rabbitTemplate;
 
-    public void  sendMessage(Integer numbersGuest,Long eventId){
+    public void  sendMessage(Integer numbersGuest,Integer eventId){
        EventRequestMessage eventRequestMessage= EventRequestMessage.builder().eventId(eventId)
                        .guestNumbers(numbersGuest).build();
        rabbitTemplate.convertAndSend("reservationQueue",eventRequestMessage);

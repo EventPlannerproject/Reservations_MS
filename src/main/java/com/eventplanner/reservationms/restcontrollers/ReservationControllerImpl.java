@@ -60,6 +60,7 @@ public class ReservationControllerImpl  implements ReservationController {
 
     @Override
     public ReservationDTO getEventReservations(Long eventId) {
+        //TODO RETURN LIST OF RESERVATIONS
         return reservationMapper.convertReservationToDto(reservationService.getReservationbyID(eventId));
     }
 

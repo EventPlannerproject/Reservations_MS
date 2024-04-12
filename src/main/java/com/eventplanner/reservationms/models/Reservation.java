@@ -43,7 +43,9 @@ public class Reservation {
 
     private PaymentMethods paymentInformation;
 
+    private String emailUserNotif;
+
     private Long idUser;
 
-    private Long idEvent;
+    private Integer idEvent;
 }
